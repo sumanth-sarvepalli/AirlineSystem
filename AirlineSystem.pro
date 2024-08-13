@@ -1,7 +1,15 @@
-QT += quick virtualkeyboard
+QT += quick sql
 
 SOURCES += \
-        main.cpp
+        main.cpp \
+        controller/AirlineSystemController.cpp \
+        controller/Flight.cpp \
+        model/FlightModel.cpp
+
+HEADERS += \
+        controller/AirlineSystemController.h \
+        controller/Flight.h \
+        model/FlightModel.h
 
 resources.files = main.qml 
 resources.prefix = /$${TARGET}

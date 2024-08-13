@@ -1,5 +1,0 @@
-<!DOCTYPE RCC><RCC version="1.0">
-<qresource prefix="/AirlineSystem">
-<file alias="main.qml">/home/sumanth/Dev/repo/public/AirlineSystem/AirlineSystem/main.qml</file>
-</qresource>
-</RCC>
