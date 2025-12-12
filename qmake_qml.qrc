@@ -1,0 +1,6 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource prefix="/AirlineSystem">
+<file alias="qml/CRUDController.qml">/app/qml/CRUDController.qml</file>
+<file alias="qml/qmldir">/app/qml/qmldir</file>
+</qresource>
+</RCC>

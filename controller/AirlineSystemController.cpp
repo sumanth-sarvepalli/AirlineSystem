@@ -30,11 +30,14 @@
 #include "AirlineSystemController.h"
 #include "Flight.h"
 #include <QDebug>
+#include <QDir>
+#include <QGuiApplication>
+#include <QFile>
+#include <QStandardPaths>
 
 AirlineSystemController::AirlineSystemController(QObject *parent)
     : QObject(parent), m_flightModel(new FlightModel(this)) {
     initializeDatabase();
-    loadFlights();
 }
 
 AirlineSystemController::~AirlineSystemController() {
@@ -44,29 +47,26 @@ AirlineSystemController::~AirlineSystemController() {
 }
 
 void AirlineSystemController::initializeDatabase() {
+    QString dbPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/flights.db";
+    QDir dir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
+    if (!dir.exists()) {
+        dir.mkpath(".");
+    }
+
+    if (!QFile::exists(dbPath)) {
+        QFile::copy(":/AirlineSystem/database/flights.db", dbPath);
+        QFile::setPermissions(dbPath, QFile::WriteOwner | QFile::ReadOwner);
+    }
+
     m_database = QSqlDatabase::addDatabase("QSQLITE");
-    m_database.setDatabaseName("../database/flights.db"); //set db path
+    m_database.setDatabaseName(dbPath);
 
     if (!m_database.open()) {
         qWarning() << "Error: Could not open database.";
-
-        QSqlQuery query;
-        query.exec("CREATE TABLE IF NOT EXISTS flights ("
-                   "id INTEGER PRIMARY KEY AUTOINCREMENT, "
-                   "flightNumber TEXT, "
-                   "departure TEXT, "
-                   "arrival TEXT, "
-                   "time TEXT)");
-
-        // Example data insertion (can be removed after initial setup)
-        query.exec("INSERT INTO flights (flightNumber, departure, arrival, time) VALUES "
-                   "('AI101', 'New York', 'London', '08:00 AM'), "
-                   "('BA202', 'London', 'Paris', '10:00 AM'), "
-                   "('AF303', 'Paris', 'Berlin', '01:00 PM'), "
-                   "('LH404', 'Berlin', 'Rome', '03:00 PM')");
-
         return;
     }
+
+    loadFlights();
 }
 
 void AirlineSystemController::loadFlights() {
@@ -83,6 +83,62 @@ void AirlineSystemController::loadFlights() {
     }
 }
 
-FlightModel *AirlineSystemController::flightModel() const {
+void AirlineSystemController::addFlight(const QString &flightNumber, const QString &departure, const QString &arrival, const QString &time)
+{
+    QSqlQuery query;
+    query.prepare("INSERT INTO flights (flightNumber, departure, arrival, time) VALUES (?, ?, ?, ?)");
+    query.addBindValue(flightNumber);
+    query.addBindValue(departure);
+    query.addBindValue(arrival);
+    query.addBindValue(time);
+    if (query.exec()) {
+        QSharedPointer<Flight> flight = QSharedPointer<Flight>::create(flightNumber, departure, arrival, time);
+        m_flightModel->addFlight(flight);
+    } else {
+        qWarning() << "Error: Could not add flight to database.";
+    }
+}
+
+void AirlineSystemController::updateFlight(int index, const QString &flightNumber, const QString &departure, const QString &arrival, const QString &time)
+{
+    if (index >= 0 && index < m_flightModel->rowCount()) {
+        QSharedPointer<Flight> flight = m_flightModel->flight(index);
+        QSqlQuery query;
+        query.prepare("UPDATE flights SET flightNumber = ?, departure = ?, arrival = ?, time = ? WHERE flightNumber = ?");
+        query.addBindValue(flightNumber);
+        query.addBindValue(departure);
+        query.addBindValue(arrival);
+        query.addBindValue(time);
+        query.addBindValue(flight->flightNumber());
+        if (query.exec()) {
+            m_flightModel->updateFlight(index, flightNumber, departure, arrival, time);
+        } else {
+            qWarning() << "Error: Could not update flight in database.";
+        }
+    }
+}
+
+void AirlineSystemController::deleteFlight(int index)
+{
+    if (index >= 0 && index < m_flightModel->rowCount()) {
+        QSharedPointer<Flight> flight = m_flightModel->flight(index);
+        QSqlQuery query;
+        query.prepare("DELETE FROM flights WHERE flightNumber = ?");
+        query.addBindValue(flight->flightNumber());
+        if (query.exec()) {
+            m_flightModel->deleteFlight(index);
+        } else {
+            qWarning() << "Error: Could not delete flight from database.";
+        }
+    }
+}
+
+void AirlineSystemController::filterFlights(const QString &departure, const QString &arrival)
+{
+    m_flightModel->filterFlights(departure, arrival);
+}
+
+FlightModel *AirlineSystemController::flightModel() const
+{
     return m_flightModel;
 }

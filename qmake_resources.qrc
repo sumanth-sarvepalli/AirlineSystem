@@ -1,0 +1,6 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource prefix="/AirlineSystem">
+<file alias="main.qml">/app/main.qml</file>
+<file alias="database/flights.db">/app/database/flights.db</file>
+</qresource>
+</RCC>

@@ -6,7 +6,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-// import QtQuick.Templates as T
+import "qrc:/AirlineSystem"
 
 ApplicationWindow {
     visible: true
@@ -32,7 +32,7 @@ ApplicationWindow {
         }
         width: parent.width
         height: 200
-        model: flightModel
+        model: flightController.flightModel()
 
         ScrollBar.horizontal: ScrollBar{
             id: hScroll
@@ -144,9 +144,7 @@ ApplicationWindow {
             }
 
             onActivated: {
-                //if (index === 0) {
-                    calendarPopup.open()
-                //}
+                calendarPopup.open()
             }
         }
 
@@ -157,34 +155,12 @@ ApplicationWindow {
             modal: true
             closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
 
-            MonthGrid {
-                id: monthGrid
+            Calendar {
+                id: calendar
                 anchors.fill: parent
-                month: Calendar.September
-                year: 2024
-
-                delegate: Item {
-                    width: parent.width / 7
-                    height: parent.height / 6
-
-                    Rectangle {
-                        anchors.fill: parent
-                        color: model.today ? "lightblue" : "white"
-                        border.color: "black"
-
-                        Text {
-                            anchors.centerIn: parent
-                            text: model.day
-                        }
-
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: {
-                                calendarDropdown.model.append({ text: model.date.toLocaleDateString() })
-                                calendarPopup.close()
-                            }
-                        }
-                    }
+                onClicked: {
+                    calendarDropdown.editText = date.toLocaleDateString()
+                    calendarPopup.close()
                 }
             }
         }
@@ -195,7 +171,7 @@ ApplicationWindow {
             anchors.horizontalCenter: parent.horizontalCenter
             text: "Search Flights"
             onClicked: {
-                flightModel.filterFlights(departureField.text, arrivalField.text);
+                flightController.filterFlights(departureField.text, arrivalField.text);
             }
         }
     }

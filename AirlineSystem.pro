@@ -11,12 +11,11 @@ HEADERS += \
         controller/Flight.h \
         model/FlightModel.h
 
-resources.files = main.qml 
-resources.prefix = /$${TARGET}
+resources.files = main.qml \
+    database/flights.db
+resources.prefix = /AirlineSystem
 RESOURCES += resources
 
-# Additional import path used to resolve QML modules in Qt Creator's code model
-QML_IMPORT_PATH =
 
 # Additional import path used to resolve QML modules just for Qt Quick Designer
 QML_DESIGNER_IMPORT_PATH =

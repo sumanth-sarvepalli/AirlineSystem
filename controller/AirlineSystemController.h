@@ -43,12 +43,15 @@ public:
     explicit AirlineSystemController(QObject *parent = nullptr);
     ~AirlineSystemController();
 
-    void initializeDatabase();
-    void loadFlights();
-
-    FlightModel *flightModel() const;
+    Q_INVOKABLE void addFlight(const QString &flightNumber, const QString &departure, const QString &arrival, const QString &time);
+    Q_INVOKABLE void updateFlight(int index, const QString &flightNumber, const QString &departure, const QString &arrival, const QString &time);
+    Q_INVOKABLE void deleteFlight(int index);
+    Q_INVOKABLE void filterFlights(const QString &departure, const QString &arrival);
+    Q_INVOKABLE FlightModel *flightModel() const;
 
 private:
+    void initializeDatabase();
+    void loadFlights();
     QSqlDatabase m_database;
     FlightModel *m_flightModel;
 };

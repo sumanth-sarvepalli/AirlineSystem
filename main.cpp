@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
     const QUrl url(u"qrc:/AirlineSystem/main.qml"_qs);
 
     AirlineSystemController controller;
-    engine.rootContext()->setContextProperty("flightModel", controller.flightModel());
+    engine.rootContext()->setContextProperty("flightController", &controller);
 
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
         &app, [url](QObject *obj, const QUrl &objUrl) {
