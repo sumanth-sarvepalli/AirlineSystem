@@ -52,7 +52,10 @@ public:
     QHash<int, QByteArray> roleNames() const override;
 
     void addFlight(QSharedPointer<Flight> flight);
+    void updateFlight(int index, const QString &flightNumber, const QString &departure, const QString &arrival, const QString &time);
+    void deleteFlight(int index);
     void filterFlights(const QString &departure, const QString &arrival);
+    QSharedPointer<Flight> flight(int index) const;
 
 private:
     QList<QSharedPointer<Flight>> m_flights;

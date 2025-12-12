@@ -72,6 +72,29 @@ void FlightModel::addFlight(QSharedPointer<Flight> flight) {
     endInsertRows();
 }
 
+void FlightModel::updateFlight(int index, const QString &flightNumber, const QString &departure, const QString &arrival, const QString &time)
+{
+    if (index >= 0 && index < m_flights.count()) {
+        QSharedPointer<Flight> flight = m_flights[index];
+        flight->setFlightNumber(flightNumber);
+        flight->setDeparture(departure);
+        flight->setArrival(arrival);
+        flight->setTime(time);
+        QModelIndex modelIndex = this->index(index);
+        emit dataChanged(modelIndex, modelIndex);
+    }
+}
+
+void FlightModel::deleteFlight(int index)
+{
+    if (index >= 0 && index < m_flights.count()) {
+        beginRemoveRows(QModelIndex(), index, index);
+        m_flights.removeAt(index);
+        m_filteredFlights.removeAt(index);
+        endRemoveRows();
+    }
+}
+
 void FlightModel::filterFlights(const QString &departure, const QString &arrival) {
     beginResetModel();
     m_filteredFlights.clear();
@@ -84,4 +107,12 @@ void FlightModel::filterFlights(const QString &departure, const QString &arrival
     }
 
     endResetModel();
+}
+
+QSharedPointer<Flight> FlightModel::flight(int index) const
+{
+    if (index >= 0 && index < m_flights.count()) {
+        return m_flights[index];
+    }
+    return nullptr;
 }
